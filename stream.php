@@ -20,7 +20,7 @@
 Displays streaming data while the car is in motion.<p>
 <?php
 
-$con=mysqli_connect();
+require_once('db.config');
 
 mysqli_query($con, "TRUNCATE stream");
 

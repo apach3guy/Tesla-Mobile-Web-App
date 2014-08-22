@@ -1,10 +1,6 @@
 <?php
 
-//Global variables
-    
-	$user = '';
-	$passwd = '';
-
+require_once('db.config');
 
 function tesla_login($user,$passwd) {
     $fields_string= 'user_session[email]=' . $user . '&user_session[password]=' . $passwd;

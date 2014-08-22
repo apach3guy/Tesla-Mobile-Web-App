@@ -1,10 +1,6 @@
 <?php
 
-$con=mysqli_connect();
-
-if (mysqli_connect_errno()) {
-	echo "Failed to connect to MySQL: " . mysqli_connect_error();
-}
+require_once('db.config');
 
 if(isset($_REQUEST['limit'])) {
 	$limit = mysqli_real_escape_string($con, $_REQUEST['limit']);

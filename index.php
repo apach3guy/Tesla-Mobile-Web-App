@@ -70,12 +70,7 @@
 <?php
 
 require_once('functions.php');
-
-$con=mysqli_connect();
-
-if (mysqli_connect_errno()) {
-	echo "Failed to connect to MySQL: " . mysqli_connect_error();
-}
+require_once('db.config');
 
 $status = tesla_read('vehicles');
 
