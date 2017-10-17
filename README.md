@@ -24,7 +24,8 @@ Note:
 	- Graphing features will require a PHP graphing library (i.e. PHPGraphLib)
 	- I am an amateur programmer with ZERO formal training. Use at your own risk!
 
-You may need to create the appropriate MYSQL tables manually:
+You will need to create the appropriate MYSQL tables manually:
+
 // Create 3 MYSQL tables if necessary
 $result = mysqli_query($con, "SELECT * FROM battery");
 if($result == NULL) {
