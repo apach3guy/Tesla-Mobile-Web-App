@@ -1,6 +1,6 @@
 <?php
 
-require_once('db.config');
+require_once('db.php');
 
 if(isset($_REQUEST['limit'])) {
 	$limit = mysqli_real_escape_string($con, $_REQUEST['limit']);
@@ -90,11 +90,11 @@ $result->close();
 	});
 </script>
 <article class="first">
-	<h2>Charge Limit (50-99)</h2>
+	<h2>Charge Limit (50-100)</h2>
 	<?php if ($row['Level'] > 90) echo '<img src="images/caution.png"><font color="red">MAX RANGE MODE</font>'; ?>
 	<?php if (isset($msg)) echo $msg; ?>
 	<form action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="POST">
-		<input type="text" class="textinput" id="battery" maxlength="2" name="limit" value="<?php echo $row['Level']; ?>">
+		<input type="text" class="textinput" id="battery" maxlength="3" name="limit" value="<?php echo $row['Level']; ?>">
 		<input type="submit" class="button" value="Set Limit">
 	</form>
 </article>
