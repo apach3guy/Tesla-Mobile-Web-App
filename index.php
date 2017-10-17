@@ -70,14 +70,14 @@
 <?php
 
 require_once('functions.php');
-require_once('db.config');
+require_once('db.php');
 
-$status = tesla_read('vehicles');
+$auth = json_decode(file_get_contents("token.json"), true);
 
-if (!$status) {
-	tesla_login($user,$passwd);
-	$status = tesla_read('vehicles');
-}
+	for($i = 0; $i < 5; $i++) {
+		$status = tesla_read('vehicles', $auth['access_token']);
+		if (isset($status[0]['state'])) break;
+	}
 
 if ($status[0]['state'] != 'online') {
 	echo '<h2>Car is sleeping</h2>';
@@ -86,16 +86,23 @@ if ($status[0]['state'] != 'online') {
 	echo "<h2>Range (offline): " . $row['Range'] . " miles, " . $row['Percent'] . " %</h2>";
 	mysqli_close($con);
 	} else {
-	$charge = tesla_read("vehicles/" . $status[0]['id'] . "/command/charge_state");
+	
+		for($i = 0; $i < 5; $i++) {
+			$charge = tesla_read("vehicles/" . $status[0]['id'] . "/data_request/charge_state", $auth['access_token']);
+			if (is_numeric($charge['battery_range'])) break;
+		}
+	
 	echo '<h2>';
 	echo "Range: " . $charge['battery_range'] . " miles, " . $charge['battery_level'] . " %</h2>";
-	$drive = tesla_read("vehicles/" . $status[0]['id'] . "/command/drive_state");
+	$drive = tesla_read("vehicles/" . $status[0]['id'] . "/data_request/drive_state", $auth['access_token']);
 	if ($drive['shift_state'] == 'D') {
 		echo 'Driving at ';
 	} else {
 		echo 'Parked at ';
 	}
 	echo date('H:i:s');
+	$vehicle = tesla_read("vehicles/" . $status[0]['id'] . "/data_request/vehicle_state", $auth['access_token']);
+	echo '<br>FW version: ' . $vehicle['car_version'] . '</br>';
 ?>
 <p>
 <div class="meter">

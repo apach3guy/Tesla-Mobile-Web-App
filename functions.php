@@ -1,56 +1,64 @@
 <?php
 
-require_once('db.config');
+//Global variables
+    
+	$id = '81527cff06843c8634fdc09e8ac0abefb46ac849f38fe1e431c2ef2106796384';
+	$secret = 'c7257eb71a564034f9419ee651c7d0e5f7aa6bfbd18bafb5c5c033b093bb2fa3';
+	$user = '';
+	$passwd = '';
 
-function tesla_login($user,$passwd) {
-    $fields_string= 'user_session[email]=' . $user . '&user_session[password]=' . $passwd;
 
-        //open connection
+function tesla_login($id,$secret,$user,$passwd) {
+
         $ch = curl_init();
-		$url = 'https://portal.vn.teslamotors.com/login';
-
-        //set the url, number of POST vars, POST data
-        curl_setopt($ch,CURLOPT_URL, $url);
-        curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
-        curl_setopt($ch,CURLOPT_USERAGENT, "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)");
-        curl_setopt($ch,CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($ch,CURLOPT_COOKIEJAR, "cookie.txt");
-        curl_setopt($ch,CURLOPT_COOKIEFILE, "cookie.txt");
-        curl_exec($ch);
-
-        //close connection
-        curl_close($ch);
+        curl_setopt($ch, CURLOPT_URL, 'https://owner-api.teslamotors.com/oauth/token');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$request = array(
+                'grant_type' => 'password',
+                'client_id' => $id,
+                'client_secret' => $secret,
+                'email' => $user,
+                'password' => $passwd,
+				);
+		$postdata = http_build_query($request);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+        curl_setopt($ch, CURLOPT_CAINFO, '/PHP/curl-ca-bundle.crt');
+		return curl_exec($ch);
+		curl_close($ch);
+        
 }
 
-function tesla_read($suffix) {
-	$url = "https://portal.vn.teslamotors.com/$suffix";
-	$send_curl = curl_init($url);
-	curl_setopt($send_curl, CURLOPT_URL, $url);
-	curl_setopt($send_curl, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($send_curl, CURLOPT_FOLLOWLOCATION, 1);
-	curl_setopt($send_curl, CURLOPT_COOKIEFILE, 'cookie.txt');
-	curl_setopt($send_curl, CURLOPT_SSL_VERIFYPEER, FALSE);
-	curl_setopt($send_curl, CURLOPT_VERBOSE, TRUE);
-	$json_response = curl_exec($send_curl); 
-	// $status = curl_getinfo($send_curl, CURLINFO_HTTP_CODE); 
-	curl_close($send_curl);
-	$response = json_decode($json_response, true);
-	return $response;
+function tesla_read($suffix,$token) {
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, "https://owner-api.teslamotors.com/api/1/$suffix");
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array("Authorization: Bearer $token"));
+	curl_setopt($ch, CURLOPT_CAINFO, '/PHP/curl-ca-bundle.crt');
+	$json_response = curl_exec($ch);
+	$response = json_decode($json_response, true, 512, JSON_BIGINT_AS_STRING);
+	return $response['response'];
+	curl_close($ch);
+	
 }
 
-// This one doesn't work because I haven't updated it
-function open_stream($user,$id,$token) {
-	$url = "https://streaming.vn.teslamotors.com/stream/" . $id . "/?values=speed,power";
-	$send_curl = curl_init($url);
-	curl_setopt($send_curl, CURLOPT_URL, $url);
-	curl_setopt($send_curl, CURLOPT_USERPWD, $user . ":" . $token);
-	curl_setopt($send_curl, CURLOPT_HEADER, 0);
-	curl_setopt($send_curl, CURLOPT_BUFFERSIZE, 256);
-	curl_setopt($send_curl, CURLOPT_RETURNTRANSFER, TRUE);
-	curl_setopt($send_curl, CURLOPT_SSL_VERIFYPEER, FALSE);
-	curl_setopt($send_curl, CURLOPT_VERBOSE, TRUE);
-	return curl_exec($send_curl);
-	curl_close($send_curl);
+function tesla_set($suffix,$level,$token) {
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://owner-api.teslamotors.com/api/1/$suffix");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+			"Content-Type: application/json",  
+			"Authorization: Bearer $token"));
+		curl_setopt($ch, CURLOPT_POST, true);
+		$postdata = json_encode(array("percent" => $level), JSON_NUMERIC_CHECK);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+        curl_setopt($ch, CURLOPT_CAINFO, '/PHP/curl-ca-bundle.crt');
+		$json_response = curl_exec($ch);
+		$response = json_decode($json_response, true);
+		return $response['response'];
+		curl_close($ch);
+
 }
 
 ?>
