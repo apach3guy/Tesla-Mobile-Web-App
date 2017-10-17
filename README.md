@@ -2,7 +2,7 @@ Tesla-Mobile-Web-App
 =====================
 
 This is a web accessable package written in PHP/MYSQL used to retrieve data and set parameters
- on a compatible Model S (remote access enabled).
+ on a compatible Tesla vehicle.
 
 Features:
 	- Track SOC data over time and monitor vampire losses (logger.php)
